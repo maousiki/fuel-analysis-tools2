@@ -6,7 +6,6 @@ import os
 # 登録情報の保存ファイル
 USER_DATA_FILE = "users.csv"
 
-
 # 初回起動時にCSVファイルを読み込み
 if "user_credentials" not in st.session_state:
     st.session_state["user_credentials"] = {}
@@ -47,8 +46,9 @@ def process_csv_data(uploaded_file, fuel_price):
 
 # ログイン機能（登録なし）
 def login():
-    st.sidebar.title("🔐 ログイン")
+    st.sidebar.write("CSVファイル存在:", os.path.exists(USER_DATA_FILE))
     st.sidebar.write("登録済みユーザー:", list(st.session_state["user_credentials"].keys()))
+    st.sidebar.title("🔐 ログイン")
     username = st.sidebar.text_input("ユーザーID")
     password = st.sidebar.text_input("パスワード", type="password")
 

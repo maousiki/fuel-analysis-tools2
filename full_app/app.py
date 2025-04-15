@@ -4,7 +4,7 @@ import csv
 import os
 
 # 登録情報の保存ファイル
-USER_DATA_FILE = "users.csv"
+USER_DATA_FILE = os.path.join(os.path.dirname(__file__), "users.csv")
 
 # 初回起動時にCSVファイルを読み込み
 if "user_credentials" not in st.session_state:

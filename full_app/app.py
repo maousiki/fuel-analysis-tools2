@@ -5,7 +5,6 @@ import os
 
 # 登録情報の保存ファイル
 USER_DATA_FILE = "users.csv"
-st.sidebar.write("登録済みユーザー:", list(st.session_state["user_credentials"].keys()))
 
 
 # 初回起動時にCSVファイルを読み込み

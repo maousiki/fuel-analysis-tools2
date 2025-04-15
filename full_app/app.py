@@ -48,6 +48,7 @@ def process_csv_data(uploaded_file, fuel_price):
 # ログイン機能（登録なし）
 def login():
     st.sidebar.title("🔐 ログイン")
+    st.sidebar.write("登録済みユーザー:", list(st.session_state["user_credentials"].keys()))
     username = st.sidebar.text_input("ユーザーID")
     password = st.sidebar.text_input("パスワード", type="password")
 

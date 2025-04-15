@@ -44,34 +44,18 @@ def process_csv_data(uploaded_file, fuel_price):
         "アイドリング率_％", "平均速度_km_per_h", "燃料使用量_L", "燃料費_円"
     ]]
 
-# ログイン・登録機能
+# ログイン機能（登録なし）
 def login():
-    st.sidebar.title("🔐 ログイン / 登録")
-    option = st.sidebar.radio("モードを選択：", ("ログイン", "新規登録"))
-
+    st.sidebar.title("🔐 ログイン")
     username = st.sidebar.text_input("ユーザーID")
     password = st.sidebar.text_input("パスワード", type="password")
 
-    if option == "ログイン":
-        if st.sidebar.button("ログイン"):
-            if username in st.session_state["user_credentials"] and st.session_state["user_credentials"][username] == password:
-                st.session_state["authenticated"] = True
-                st.sidebar.success("ログイン成功！")
-            else:
-                st.sidebar.error("ユーザーIDまたはパスワードが間違っています。")
-
-    elif option == "新規登録":
-        if st.sidebar.button("登録する"):
-            if username in st.session_state["user_credentials"]:
-                st.sidebar.warning("このユーザーIDは既に登録されています。")
-            else:
-                # ユーザー追加
-                st.session_state["user_credentials"][username] = password
-                with open(USER_DATA_FILE, mode='a', newline='', encoding='utf-8') as csvfile:
-                    writer = csv.writer(csvfile)
-                    writer.writerow([username, password])
-                st.session_state["authenticated"] = True
-                st.sidebar.success("登録＆ログイン成功！")
+    if st.sidebar.button("ログイン"):
+        if username in st.session_state["user_credentials"] and st.session_state["user_credentials"][username] == password:
+            st.session_state["authenticated"] = True
+            st.sidebar.success("ログイン成功！")
+        else:
+            st.sidebar.error("ユーザーIDまたはパスワードが間違っています。")
 
 # Streamlitアプリのメイン関数
 def main():

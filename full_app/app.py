@@ -1,20 +1,6 @@
 import streamlit as st
 import pandas as pd
-import csv
 import os
-
-# 登録情報の保存ファイル
-USER_DATA_FILE = "users.csv"
-
-# 初回起動時にCSVファイルを読み込み
-if "user_credentials" not in st.session_state:
-    st.session_state["user_credentials"] = {}
-    if os.path.exists(USER_DATA_FILE):
-        with open(USER_DATA_FILE, newline='', encoding='utf-8') as csvfile:
-            reader = csv.reader(csvfile)
-            for row in reader:
-                if len(row) == 2:
-                    st.session_state["user_credentials"][row[0]] = row[1]
 
 # 時間を分に変換する関数
 def convert_time_to_minutes(time_str):
@@ -44,58 +30,39 @@ def process_csv_data(uploaded_file, fuel_price):
         "アイドリング率_％", "平均速度_km_per_h", "燃料使用量_L", "燃料費_円"
     ]]
 
-# ログイン機能（登録なし）
-def login():
-    st.sidebar.write("CSVファイル存在:", os.path.exists(USER_DATA_FILE))
-    st.sidebar.write("登録済みユーザー:", list(st.session_state["user_credentials"].keys()))
-    st.sidebar.title("🔐 ログイン")
-    username = st.sidebar.text_input("ユーザーID")
-    password = st.sidebar.text_input("パスワード", type="password")
+# メイン処理
+st.title("🚚 燃費見える化くん（Web版）")
+st.write("CSVファイルをアップロードすると、燃費やコスト、ランキングが表示されます。")
 
-    if st.sidebar.button("ログイン"):
-        if username in st.session_state["user_credentials"] and st.session_state["user_credentials"][username] == password:
-            st.session_state["authenticated"] = True
-            st.sidebar.success("ログイン成功！")
-        else:
-            st.sidebar.error("ユーザーIDまたはパスワードが間違っています。")
+fuel_price = st.number_input("燃料単価（円/L）を入力してください", value=160, step=1)
 
-# Streamlitアプリのメイン関数
-def main():
-    if "authenticated" not in st.session_state:
-        st.session_state["authenticated"] = False
+uploaded_file = st.file_uploader("CSVファイルを選んでください", type=["csv"])
 
-    if not st.session_state["authenticated"]:
-        login()
-        return
+if uploaded_file is not None:
+    try:
+        df = process_csv_data(uploaded_file, fuel_price)
+        st.success("データを読み込みました！")
+        st.dataframe(df)
 
-    st.sidebar.button("ログアウト", on_click=lambda: st.session_state.update({"authenticated": False}))
+        # ランキングテーブル表示
+        st.subheader("💡 ランキング：燃料費（高い順）")
+        st.dataframe(df.sort_values("燃料費_円", ascending=False)[["乗務員", "燃料費_円"]])
 
-    st.title("🚚 燃費見える化くん（Web版）")
-    st.write("CSVファイルをアップロードすると、燃費やコストが自動で表示されます。")
+        st.subheader("💡 ランキング：アイドリング率（高い順）")
+        st.dataframe(df.sort_values("アイドリング率_％", ascending=False)[["乗務員", "アイドリング率_％"]])
 
-    fuel_price = st.number_input("燃料単価（円/L）を入力してください", value=160, step=1)
+        st.subheader("💡 ランキング：平均速度（高い順）")
+        st.dataframe(df.sort_values("平均速度_km_per_h", ascending=False)[["乗務員", "平均速度_km_per_h"]])
 
-    uploaded_file = st.file_uploader("CSVファイルを選んでください", type=["csv"])
+        # グラフ表示
+        st.subheader("📊 ドライバー別：燃料費")
+        st.bar_chart(df.set_index("乗務員")["燃料費_円"])
 
-    if uploaded_file is not None:
-        try:
-            df = process_csv_data(uploaded_file, fuel_price)
-            st.success("データを読み込みました！")
-            st.dataframe(df)
+        st.subheader("📊 ドライバー別：アイドリング率")
+        st.bar_chart(df.set_index("乗務員")["アイドリング率_％"])
 
-            # グラフ表示
-            st.subheader("ドライバー別：燃料費")
-            st.bar_chart(df.set_index("乗務員")["燃料費_円"])
+        st.subheader("📊 ドライバー別：平均速度")
+        st.bar_chart(df.set_index("乗務員")["平均速度_km_per_h"])
 
-            st.subheader("ドライバー別：アイドリング率")
-            st.bar_chart(df.set_index("乗務員")["アイドリング率_％"])
-
-            st.subheader("ドライバー別：平均速度")
-            st.bar_chart(df.set_index("乗務員")["平均速度_km_per_h"])
-
-        except Exception as e:
-            st.error(f"エラーが発生しました: {e}")
-
-if __name__ == "__main__":
-    main()
-
+    except Exception as e:
+        st.error(f"エラーが発生しました: {e}")

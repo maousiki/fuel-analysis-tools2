@@ -1,4 +1,5 @@
 import streamlit as st
+import plotly.express as px
 import pandas as pd
 import os
 
@@ -57,22 +58,19 @@ if uploaded_file is not None:
 
         # グラフ表示
         st.subheader("📊 ドライバー別：燃料費")
-        if st.radio("表示形式（燃料費）", ["表", "グラフ"], key="graph1") == "グラフ":
-            st.bar_chart(df.set_index("乗務員")["燃料費_円"])
-        else:
-            st.dataframe(df[["乗務員", "燃料費_円"]].set_index("乗務員"), height=500)
+        fig1 = px.bar(df, x="乗務員", y="燃料費_円", height=500)
+        fig1.update_layout(xaxis={'tickangle': -45}, margin=dict(l=0, r=0, t=30, b=150), xaxis_title=None)
+        st.plotly_chart(fig1, use_container_width=True)
 
         st.subheader("📊 ドライバー別：アイドリング率")
-        if st.radio("表示形式（アイドリング率）", ["表", "グラフ"], key="graph2") == "グラフ":
-            st.bar_chart(df.set_index("乗務員")["アイドリング率_％"])
-        else:
-            st.dataframe(df[["乗務員", "アイドリング率_％"]].set_index("乗務員"), height=500)
+        fig2 = px.bar(df, x="乗務員", y="アイドリング率_％", height=500)
+        fig2.update_layout(xaxis={'tickangle': -45}, margin=dict(l=0, r=0, t=30, b=150), xaxis_title=None)
+        st.plotly_chart(fig2, use_container_width=True)
 
         st.subheader("📊 ドライバー別：平均速度")
-        if st.radio("表示形式（平均速度）", ["表", "グラフ"], key="graph3") == "グラフ":
-            st.bar_chart(df.set_index("乗務員")["平均速度_km_per_h"])
-        else:
-            st.dataframe(df[["乗務員", "平均速度_km_per_h"]].set_index("乗務員"), height=500)
+        fig3 = px.bar(df, x="乗務員", y="平均速度_km_per_h", height=500)
+        fig3.update_layout(xaxis={'tickangle': -45}, margin=dict(l=0, r=0, t=30, b=150), xaxis_title=None)
+        st.plotly_chart(fig3, use_container_width=True)
 
         # アドバイス表示（チェックボックスでON/OFF）
         if st.checkbox("📝 アドバイスを表示する"):

@@ -79,5 +79,6 @@ if uploaded_file is not None:
                 if advice:
                     st.markdown(f"**🚚 {row['乗務員']} さんへのアドバイス：**")
                     for a in advice:
-                        st.markdown(f"- {a}")except Exception as e:
+                        st.markdown(f"- {a}")
+    except Exception as e:
         st.error(f"エラーが発生しました: {e}")

@@ -59,17 +59,17 @@ if uploaded_file is not None:
         # グラフ表示
         st.subheader("📊 ドライバー別：燃料費")
         fig1 = px.bar(df, x="乗務員", y="燃料費_円", height=500)
-        fig1.update_layout(xaxis={'tickangle': -45}, yaxis_range=[0, None], yaxis_tickformat=',' , margin=dict(l=0, r=0, t=30, b=150), xaxis_title=None), xaxis_title=None), xaxis_title=None), xaxis_title=None), xaxis_title=None)
+        fig1.update_layout(xaxis={'tickangle': -45}, yaxis_range=[0, None], yaxis_tickformat=',', margin=dict(l=0, r=0, t=30, b=150), xaxis_title=None), xaxis_title=None), xaxis_title=None), xaxis_title=None), xaxis_title=None), xaxis_title=None)
         st.plotly_chart(fig1, use_container_width=True)
 
         st.subheader("📊 ドライバー別：アイドリング率")
         fig2 = px.bar(df, x="乗務員", y="アイドリング率_％", height=500)
-        fig2.update_layout(xaxis={'tickangle': -45}, yaxis_range=[0, None], margin=dict(l=0, r=0, t=30, b=150), xaxis_title=None), xaxis_title=None), xaxis_title=None), xaxis_title=None), xaxis_title=None)
+        fig2.update_layout(xaxis={'tickangle': -45}, yaxis_range=[0, None], margin=dict(l=0, r=0, t=30, b=150), xaxis_title=None), xaxis_title=None), xaxis_title=None), xaxis_title=None), xaxis_title=None), xaxis_title=None)
         st.plotly_chart(fig2, use_container_width=True)
 
         st.subheader("📊 ドライバー別：平均速度")
         fig3 = px.bar(df, x="乗務員", y="平均速度_km_per_h", height=500)
-        fig3.update_layout(xaxis={'tickangle': -45}, yaxis_range=[0, None], margin=dict(l=0, r=0, t=30, b=150), xaxis_title=None), xaxis_title=None), xaxis_title=None), xaxis_title=None), xaxis_title=None)
+        fig3.update_layout(xaxis={'tickangle': -45}, yaxis_range=[0, None], margin=dict(l=0, r=0, t=30, b=150), xaxis_title=None), xaxis_title=None), xaxis_title=None), xaxis_title=None), xaxis_title=None), xaxis_title=None)
         st.plotly_chart(fig3, use_container_width=True)
 
         # アドバイス表示（チェックボックスでON/OFF）

@@ -25,6 +25,7 @@ def process_csv_data(uploaded_file, fuel_price):
     df["燃料使用量_L"] = (df["走行距離_km"] / fuel_efficiency).round(2)
     df["燃料費_円"] = (df["燃料使用量_L"] * fuel_price).round(0)
 
+    df["運行日"] = pd.to_datetime(df["日付"], errors="coerce")  # '運行日' がない場合の対応
     return df[[
         "乗務員", "運行日", "走行距離_km", "運転時間_分", "アイドリング時間_分",
         "アイドリング率_％", "平均速度_km_per_h", "燃料使用量_L", "燃料費_円"

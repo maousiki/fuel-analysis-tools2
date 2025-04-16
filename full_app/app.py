@@ -65,7 +65,7 @@ if uploaded_file is not None:
 
         # グラフ表示
         st.subheader("📊 ドライバー別：燃料費")
-        fig1 = px.bar(df, x="乗務員", y="燃料費_円", height=500, color=df["燃料費_円"].apply(lambda x: 'red' if x > 10000 else 'blue'))
+        fig1 = px.bar(df, x="乗務員", y="燃料費_円", height=500, color_discrete_sequence=df["燃料費_円"].apply(lambda x: 'red' if x > 10000 else 'blue'))
         fig1.update_layout(
             xaxis={'tickangle': -45},
             yaxis_range=[0, None],
@@ -76,7 +76,7 @@ if uploaded_file is not None:
         st.plotly_chart(fig1, use_container_width=True)
 
         st.subheader("📊 ドライバー別：アイドリング率")
-        fig2 = px.bar(df, x="乗務員", y="アイドリング率_％", height=500, color=df["アイドリング率_％"].apply(lambda x: 'red' if x > 100 else 'blue'))
+        fig2 = px.bar(df, x="乗務員", y="アイドリング率_％", height=500, color_discrete_sequence=df["アイドリング率_％"].apply(lambda x: 'red' if x > 100 else 'blue'))
         fig2.update_layout(
             xaxis={'tickangle': -45},
             yaxis_range=[0, None],

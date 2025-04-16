@@ -15,7 +15,7 @@ def process_csv_data(uploaded_file, fuel_price):
     df = pd.read_csv(uploaded_file, encoding="cp932")
 
     df["運転時間_分"] = df["走行時間"].apply(convert_time_to_minutes)
-    df["アイドリング時間_分"] = df["アイドリング－時分－"].apply(convert_time_to_minutes)
+    df["アイドリング時間_分"] = 0  # 列がないため、暫定的に0とする
     df["走行距離_km"] = pd.to_numeric(df["走行距離－ｋｍ－"], errors="coerce")
 
     df["アイドリング率_％"] = (df["アイドリング時間_分"] / df["運転時間_分"] * 100).round(2)

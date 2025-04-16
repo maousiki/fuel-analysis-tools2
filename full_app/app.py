@@ -69,6 +69,8 @@ if uploaded_file is not None:
     xaxis_title=None
 ),
     xaxis_title=None
+),
+    xaxis_title=None
 ), xaxis_title=None), xaxis_title=None), xaxis_title=None), xaxis_title=None), xaxis_title=None), xaxis_title=None)
         st.plotly_chart(fig1, use_container_width=True)
 
@@ -83,6 +85,8 @@ if uploaded_file is not None:
     xaxis_title=None
 ),
     xaxis_title=None
+),
+    xaxis_title=None
 ), xaxis_title=None), xaxis_title=None), xaxis_title=None), xaxis_title=None), xaxis_title=None), xaxis_title=None)
         st.plotly_chart(fig2, use_container_width=True)
 
@@ -92,6 +96,8 @@ if uploaded_file is not None:
     xaxis={'tickangle': -45},
     yaxis_range=[0, None],
     margin=dict(l=0, r=0, t=30, b=150),
+    xaxis_title=None
+),
     xaxis_title=None
 ),
     xaxis_title=None

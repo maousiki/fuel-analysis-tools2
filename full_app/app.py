@@ -14,7 +14,7 @@ def convert_time_to_minutes(time_str):
 def process_csv_data(uploaded_file, fuel_price):
     df = pd.read_csv(uploaded_file, encoding="cp932")
 
-    df["運転時間_分"] = df["ハンドル時間－時分－"].apply(convert_time_to_minutes)
+    df["運転時間_分"] = df["走行時間"].apply(convert_time_to_minutes)
     df["アイドリング時間_分"] = df["アイドリング－時分－"].apply(convert_time_to_minutes)
     df["走行距離_km"] = pd.to_numeric(df["走行距離－ｋｍ－"], errors="coerce")
 
@@ -64,21 +64,20 @@ if uploaded_file is not None:
         st.subheader("📊 ドライバー別：平均速度")
         st.bar_chart(df.set_index("乗務員")["平均速度_km_per_h"])
 
-        # アドバイス表示
-        st.subheader("🛠 ドライバー別アドバイス")
-        for _, row in df.iterrows():
-            advice = []
-            if row["アイドリング率_％"] > 100:
-                advice.append("アイドリング時間が長めです。不要なアイドリングを避けましょう。")
-            if row["平均速度_km_per_h"] < 20:
-                advice.append("平均速度が低めです。交通状況に応じて速度一定を意識すると燃費改善に効果的です。")
-            if row["燃料費_円"] > df["燃料費_円"].quantile(0.75):
-                advice.append("燃料費がやや高めです。走行ルートや待機時間の見直しを検討しましょう。")
+        # アドバイス表示（チェックボックスでON/OFF）
+        if st.checkbox("📝 アドバイスを表示する"):
+            st.subheader("🛠 ドライバー別アドバイス")
+            for _, row in df.iterrows():
+                advice = []
+                if row["アイドリング率_％"] > 100:
+                    advice.append("アイドリング時間が長めです。不要なアイドリングを避けましょう。")
+                if row["平均速度_km_per_h"] < 20:
+                    advice.append("平均速度が低めです。交通状況に応じて速度一定を意識すると燃費改善に効果的です。")
+                if row["燃料費_円"] > df["燃料費_円"].quantile(0.75):
+                    advice.append("燃料費がやや高めです。走行ルートや待機時間の見直しを検討しましょう。")
 
-            if advice:
-                st.markdown(f"**🚚 {row['乗務員']} さんへのアドバイス：**")
-                for a in advice:
-                    st.markdown(f"- {a}")
-
-    except Exception as e:
+                if advice:
+                    st.markdown(f"**🚚 {row['乗務員']} さんへのアドバイス：**")
+                    for a in advice:
+                        st.markdown(f"- {a}")except Exception as e:
         st.error(f"エラーが発生しました: {e}")

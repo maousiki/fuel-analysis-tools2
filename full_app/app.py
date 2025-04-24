@@ -9,21 +9,23 @@ import plotly.express as px
 import numpy as np
 
 # ──────────── ログイン設定 ────────────
-# ログインを最優先に表示 (ページ設定の前)
+# セッションステートにログイン状態を保持
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
+# ログインUI
 if not st.session_state.logged_in:
     st.title('🔒 ログイン')
     username = st.text_input('ユーザーID')
     password = st.text_input('パスワード', type='password')
     if st.button('ログイン'):
+        # 認証情報（必要に応じて環境変数や外部サービスに置き換え）
         valid_users = {'admin': 'password', 'user1': 'pass1'}
         if username in valid_users and password == valid_users[username]:
             st.session_state.logged_in = True
-            st.experimental_rerun()
         else:
             st.error('IDまたはパスワードが正しくありません')
+    # ログイン成功までメインUI非表示
     st.stop()
 
 # ──────────── Streamlit ページ設定 ────────────

@@ -4,6 +4,7 @@ import types
 sys.modules.setdefault('micropip', types.ModuleType('micropip'))
 
 import streamlit as st
+import os
 import pandas as pd
 import plotly.express as px
 import numpy as np
@@ -19,12 +20,17 @@ if not st.session_state.logged_in:
     username = st.text_input('ユーザーID')
     password = st.text_input('パスワード', type='password')
     if st.button('ログイン'):
-        # 認証情報をStreamlit Secretsから取得
-        # secrets.toml に以下のように設定してください:
-        # [valid_users]
-        # admin = "password"
-        # user1 = "pass1"
-        valid_users = st.secrets.get('valid_users', {})
+        # 認証情報をCSVファイルから読み込む
+        valid_users = {}
+        try:
+            # プロジェクト直下に users.csv を配置してください
+            cred_path = os.path.join(os.path.dirname(__file__), 'users.csv')
+            cred_df = pd.read_csv(cred_path, encoding='utf-8')
+            # CSVは「ユーザーID」「パスワード」の列を持つとします
+            valid_users = dict(zip(cred_df['ユーザーID'], cred_df['パスワード']))
+        except Exception as e:
+            st.error(f'認証ファイルの読み込みに失敗しました: {e}')
+        # 認証チェック
         if username in valid_users and password == valid_users[username]:
             st.session_state.logged_in = True
         else:

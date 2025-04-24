@@ -9,7 +9,7 @@ import plotly.express as px
 import numpy as np
 
 # ──────────── ログイン設定 ────────────
-# セッションステートにログイン状態を保持
+# ログインを最優先に表示 (ページ設定の前)
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
@@ -18,7 +18,6 @@ if not st.session_state.logged_in:
     username = st.text_input('ユーザーID')
     password = st.text_input('パスワード', type='password')
     if st.button('ログイン'):
-        # 認証情報（環境変数やセキュアなストアに置き換えてください）
         valid_users = {'admin': 'password', 'user1': 'pass1'}
         if username in valid_users and password == valid_users[username]:
             st.session_state.logged_in = True
@@ -26,6 +25,12 @@ if not st.session_state.logged_in:
         else:
             st.error('IDまたはパスワードが正しくありません')
     st.stop()
+
+# ──────────── Streamlit ページ設定 ────────────
+st.set_page_config(page_title='燃費見える化ダッシュボード', layout='wide')
+
+# ──────────── ヘッダー ────────────
+st.title('🚚 燃費見える化ダッシュボード')
 
 # ──────────── ヘルパー関数 ────────────
 def convert_time_to_minutes(time_str):
@@ -72,16 +77,14 @@ def process_csv_data(df, fuel_price, fuel_efficiency, date_col=None):
 
     return df
 
-# ──────────── Streamlit UI ────────────
-st.set_page_config(page_title='燃費見える化ダッシュボード', layout='wide')
-st.title('🚚 燃費見える化ダッシュボード')
-
+# ──────────── 入力パネル ────────────
 col1, col2, col3 = st.columns(3)
 fuel_price = col1.number_input('燃料単価 (円/L)', value=160, step=1)
 fuel_efficiency = col2.number_input('想定燃費 (km/L)', value=5.0, step=0.1)
 col2.markdown('_（1〜3トン:10〜17km/L、4トン:約7.5km/L、8トン以上:3〜5km/L）_', unsafe_allow_html=True)
 idling_threshold = col3.slider('アイドリング率警告閾値 (%)', 0, 100, 20)
 
+# ──────────── CSV アップロード ────────────
 uploaded_file = st.file_uploader('CSV アップロード (cp932)', type=['csv'])
 if uploaded_file:
     try:
@@ -114,31 +117,33 @@ if uploaded_file:
         df = process_csv_data(df, fuel_price, fuel_efficiency, date_col)
         st.success('✅ データ読み込み完了')
 
+        # データプレビュー
         st.subheader('🔍 データプレビュー')
         preview_cols = ['乗務員']
         if '運行日' in df.columns:
             preview_cols.append('運行日')
         elif '日付' in df.columns:
             preview_cols.append('日付')
-        preview_cols += ['走行距離_km','燃料使用量_L','燃料費_円','アイドリング率_％','平均速度_km_h']
+        preview_cols += ['走行距離_km', '燃料使用量_L', '燃料費_円', 'アイドリング率_％', '平均速度_km_h']
         st.dataframe(df[preview_cols])
 
+        # 月間集計とランキンググラフ
         summary = df.groupby('乗務員', as_index=False).agg(
-            走行距離_km=('走行距離_km','sum'),
-            燃料使用量_L=('燃料使用量_L','sum'),
-            燃料費_円=('燃料費_円','sum'),
-            稼働時間_分=('稼働時間_分','sum'),
-            アイドリング時間_分=('アイドリング時間_分','sum'),
-            走行時間_分=('走行時間_分','sum')
+            走行距離_km=('走行距離_km', 'sum'),
+            燃料使用量_L=('燃料使用量_L', 'sum'),
+            燃料費_円=('燃料費_円', 'sum'),
+            稼働時間_分=('稼働時間_分', 'sum'),
+            アイドリング時間_分=('アイドリング時間_分', 'sum'),
+            走行時間_分=('走行時間_分', 'sum')
         )
         summary['月間平均燃費_km_L'] = np.where(
-            summary['燃料使用量_L']>0,
-            (summary['走行距離_km']/summary['燃料使用量_L']).round(2),
+            summary['燃料使用量_L'] > 0,
+            (summary['走行距離_km'] / summary['燃料使用量_L']).round(2),
             pd.NA
         )
         summary['月間アイドリング率_％'] = np.where(
-            summary['稼働時間_分']>0,
-            (summary['アイドリング時間_分']/summary['稼働時間_分']*100).round(2),
+            summary['稼働時間_分'] > 0,
+            (summary['アイドリング時間_分'] / summary['稼働時間_分'] * 100).round(2),
             pd.NA
         )
 
@@ -147,36 +152,37 @@ if uploaded_file:
 
         st.subheader('📊 月間燃料使用量ランキング')
         fig_fuel_use = px.bar(
-            summary.sort_values('燃料使用量_L',ascending=False),
-            x='乗務員',y='燃料使用量_L',title='ドライバー別 月間燃料使用量 (L)'
+            summary.sort_values('燃料使用量_L', ascending=False),
+            x='乗務員', y='燃料使用量_L', title='ドライバー別 月間燃料使用量 (L)'
         )
         fig_fuel_use.update_layout(xaxis_tickangle=-45)
-        st.plotly_chart(fig_fuel_use,use_container_width=True)
+        st.plotly_chart(fig_fuel_use, use_container_width=True)
 
         st.subheader('📊 月間燃料費ランキング')
-        fig_fuel_cost=px.bar(
-            summary.sort_values('燃料費_円',ascending=False),
-            x='乗務員',y='燃料費_円',title='ドライバー別 月間燃料費 (円)'
+        fig_fuel_cost = px.bar(
+            summary.sort_values('燃料費_円', ascending=False),
+            x='乗務員', y='燃料費_円', title='ドライバー別 月間燃料費 (円)'
         )
-        fig_fuel_cost.update_layout(xaxis_tickangle=-45,yaxis_tickformat=',')
-        st.plotly_chart(fig_fuel_cost,use_container_width=True)
+        fig_fuel_cost.update_layout(xaxis_tickangle=-45, yaxis_tickformat=',')
+        st.plotly_chart(fig_fuel_cost, use_container_width=True)
 
-        summary['アイドリング色']=np.where(
-            summary['月間アイドリング率_％']>=idling_threshold,'red','blue'
+        summary['アイドリング色'] = np.where(
+            summary['月間アイドリング率_％'] >= idling_threshold, 'red', 'blue'
         )
         st.subheader('📊 月間アイドリング率ランキング')
-        fig2=px.bar(
-            summary.sort_values('月間アイドリング率_％',ascending=False),
-            x='乗務員',y='月間アイドリング率_％',
-            color='アイドリング色',color_discrete_map={'red':'red','blue':'blue'},
+        fig2 = px.bar(
+            summary.sort_values('月間アイドリング率_％', ascending=False),
+            x='乗務員', y='月間アイドリング率_％',
+            color='アイドリング色', color_discrete_map={'red': 'red', 'blue': 'blue'},
             title=f'ドライバー別 月間アイドリング率 (%) (閾値: {idling_threshold}%)'
         )
-        fig2.add_shape(type='line',x0=-0.5,x1=len(summary)-0.5,
-                       y0=idling_threshold,y1=idling_threshold,
-                       line=dict(color='black',dash='dash')
+        fig2.add_shape(
+            type='line', x0=-0.5, x1=len(summary) - 0.5,
+            y0=idling_threshold, y1=idling_threshold,
+            line=dict(color='black', dash='dash')
         )
-        fig2.update_layout(xaxis_tickangle=-45,showlegend=False)
-        st.plotly_chart(fig2,use_container_width=True)
+        fig2.update_layout(xaxis_tickangle=-45, showlegend=False)
+        st.plotly_chart(fig2, use_container_width=True)
 
         st.markdown('**算出式**')
         st.markdown('- 燃料使用量 (L) = 走行距離_km ÷ 想定燃費 (km/L)')

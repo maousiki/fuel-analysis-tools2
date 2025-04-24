@@ -19,8 +19,12 @@ if not st.session_state.logged_in:
     username = st.text_input('ユーザーID')
     password = st.text_input('パスワード', type='password')
     if st.button('ログイン'):
-        # 認証情報（必要に応じて環境変数や外部サービスに置き換え）
-        valid_users = {'admin': 'password', 'user1': 'pass1'}
+        # 認証情報をStreamlit Secretsから取得
+        # secrets.toml に以下のように設定してください:
+        # [valid_users]
+        # admin = "password"
+        # user1 = "pass1"
+        valid_users = st.secrets.get('valid_users', {})
         if username in valid_users and password == valid_users[username]:
             st.session_state.logged_in = True
         else:

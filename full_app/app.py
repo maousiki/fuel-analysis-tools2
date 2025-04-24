@@ -25,7 +25,14 @@ if not st.session_state.logged_in:
         try:
             # プロジェクト直下に users.csv を配置してください
             cred_path = os.path.join(os.path.dirname(__file__), 'users.csv')
-            cred_df = pd.read_csv(cred_path, encoding='cp932')  # 日本語CSV対応 encoding CPR932
+            # users.csv の1行目がヘッダーではない場合にも対応
+cred_df = pd.read_csv(
+    cred_path,
+    encoding='cp932',
+    header=None,
+    names=['ユーザーID','パスワード'],
+    skiprows=1
+)  # 1行目を飛ばして読み込み
             # CSVは「ユーザーID」「パスワード」の列を持つとします
             valid_users = dict(zip(cred_df['ユーザーID'], cred_df['パスワード']))
         except Exception as e:

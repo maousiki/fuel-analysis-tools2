@@ -33,6 +33,41 @@ if not st.session_state.logged_in:
         # 認証チェック
         if username in valid_users and password == valid_users[username]:
             st.session_state.logged_in = True
+        else:import sys
+import types
+# micropip がない環境向けのスタブ
+sys.modules.setdefault('micropip', types.ModuleType('micropip'))
+
+import streamlit as st
+import os
+import pandas as pd
+import plotly.express as px
+import numpy as np
+
+# ──────────── ログイン設定 ────────────
+# セッションステートにログイン状態を保持
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False
+
+# ログインUI
+if not st.session_state.logged_in:
+    st.title('🔒 ログイン')
+    username = st.text_input('ユーザーID')
+    password = st.text_input('パスワード', type='password')
+    if st.button('ログイン'):
+        # 認証情報をCSVファイルから読み込む
+        valid_users = {}
+        try:
+            # プロジェクト直下に users.csv を配置してください
+            cred_path = os.path.join(os.path.dirname(__file__), 'users.csv')
+            cred_df = pd.read_csv(cred_path, encoding='cp932')  # 日本語CSV対応 encoding CPR932
+            # CSVは「ユーザーID」「パスワード」の列を持つとします
+            valid_users = dict(zip(cred_df['ユーザーID'], cred_df['パスワード']))
+        except Exception as e:
+            st.error(f'認証ファイルの読み込みに失敗しました: {e}')
+        # 認証チェック
+        if username in valid_users and password == valid_users[username]:
+            st.session_state.logged_in = True
         else:
             st.error('IDまたはパスワードが正しくありません')
     # ログイン成功までメインUI非表示
